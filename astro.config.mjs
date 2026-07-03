@@ -1,5 +1,5 @@
 // @ts-check
-import cloudflare from '@npm i @astrojs/cloudflare';
+import cloudflare from '@astrojs/cloudflare';
 import { defineConfig } from "astro/config";
 
 // https://astro.build/config
