@@ -21,7 +21,7 @@ npm run dev        # http://localhost:4321
 
 Name, tagline, and social links. Set any field to `""` to hide it.
 
-### 2. Portrait — `src/assets/portrait.JPG`
+### 2. Portrait — `src/assets/portrait.webp`
 
 Replace with your own photo. Ideally square, 400×400px or larger.
 
@@ -123,7 +123,7 @@ export default defineConfig({
 ```
 src/
 ├── constants.ts              # Name, tagline, social links
-├── assets/portrait.png       # Profile picture
+├── assets/portrait.webp       # Profile picture
 ├── data/publications.json    # Publications
 ├── pages/
 │   ├── index.astro
