@@ -2,7 +2,6 @@
 
 **[Live demo](https://whydevils.github.io/astro-scholar)**
 
-
 Built with [Astro](https://astro.build). Simple, fast, easy to configure and extend. Pages for introduction, publications, presentations, and a blog.
 
 ## 🚀 Getting started
@@ -22,7 +21,7 @@ npm run dev        # http://localhost:4321
 
 Name, tagline, and social links. Set any field to `""` to hide it.
 
-### 2. Portrait — `src/assets/portrait.png`
+### 2. Portrait — `src/assets/portrait.JPG`
 
 Replace with your own photo. Ideally square, 400×400px or larger.
 
@@ -63,11 +62,11 @@ Add a `.md` file per post:
 
 ```markdown
 ---
-layout: '../../layouts/BlogPost.astro'
-title: 'Post Title'
-date: '2025-06-01'
-description: 'One sentence shown on the index.'
-tags: ['methodology', 'field-notes']
+layout: "../../layouts/BlogPost.astro"
+title: "Post Title"
+date: "2025-06-01"
+description: "One sentence shown on the index."
+tags: ["methodology", "field-notes"]
 ---
 
 Post content here.
@@ -76,6 +75,7 @@ Post content here.
 Tags become clickable filters on the blog index. Keep them lowercase and hyphenated, and reuse them across posts so the filter is useful.
 
 Images go in `public/images/blog/`. In markdown files you cannot use `BASE_URL`, so the path must include your base manually:
+
 - Root deployment (`username.github.io`): `/images/blog/filename.png`
 - Sub-path deployment (`username.github.io/repo-name`): `/repo-name/images/blog/filename.png`
 
@@ -101,7 +101,7 @@ Edit `astro.config.mjs` to match your deployment URL:
 
 ```javascript
 export default defineConfig({
-  site: 'https://your-github-username.github.io',
+  site: "https://your-github-username.github.io",
 });
 ```
 
@@ -109,8 +109,8 @@ export default defineConfig({
 
 ```javascript
 export default defineConfig({
-  site: 'https://your-github-username.github.io',
-  base: '/repo-name/',
+  site: "https://your-github-username.github.io",
+  base: "/repo-name/",
 });
 ```
 
