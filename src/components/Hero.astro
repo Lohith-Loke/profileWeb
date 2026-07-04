@@ -1,7 +1,5 @@
 ---
-import { Image } from "astro:assets";
 import SocialIcons from "./SocialIcons.astro";
-import portraitImage from "../assets/portrait.webp";
 
 const { name, tagline, twitter, linkedin, scholar, email } = Astro.props;
 ---
@@ -9,7 +7,7 @@ const { name, tagline, twitter, linkedin, scholar, email } = Astro.props;
 <section class="hero">
   <div class="hero-content">
     <div class="portrait-container">
-      <Image src={portraitImage} alt={name} class="portrait" />
+      <img src="/images/portrait.webp" alt={name} class="portrait" />
     </div>
     <div class="hero-text">
       <h1>{name}</h1>

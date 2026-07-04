@@ -7,7 +7,7 @@ export default defineConfig({
   // 2. Remove the adapter: cloudflare() line completely
   image: {
     service: {
-      entrypoint: 'astro/assets/services/sharp' 
+      entrypoint: 'astro/assets/services/noop' 
     }
   }
 });
