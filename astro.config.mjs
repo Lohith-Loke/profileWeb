@@ -8,10 +8,9 @@ export default defineConfig({
   base: "",
   output: 'server',
   adapter: cloudflare(),
-  // Add this block 👇
   image: {
     service: {
-      entrypoint: 'astro/assets/services/sharp' // Or try 'astro/assets/services/noop' if it still fails
+      entrypoint: 'astro/assets/services/noop' 
     }
   }
 });
