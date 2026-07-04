@@ -2,6 +2,8 @@ import { defineConfig } from 'astro/config';
 
 import mdx from '@astrojs/mdx';
 
+import cloudflare from '@astrojs/cloudflare';
+
 export default defineConfig({
   site: "https://lohith.io",
   base: "",
@@ -16,5 +18,6 @@ export default defineConfig({
     }
   },
 
-  integrations: [mdx()]
+  integrations: [mdx()],
+  adapter: cloudflare()
 });
