@@ -284,7 +284,7 @@
     display: block;
 }
 
-.post-body img + em {
+.post-body img+em {
     display: block;
     font-size: 0.85rem;
     color: var(--color-text-muted);
@@ -329,4 +329,91 @@
     margin-top: 3.5rem;
     padding-top: 2rem;
     border-top: 1px solid var(--color-border);
+}
+
+/* Container for the code block */
+pre {
+    position: relative;
+    padding: 1rem 1rem 1rem 1rem !important;
+    /* Tightened padding */
+    margin: 1.5rem 0;
+    border-radius: 6px;
+    background-color: #0d1117 !important;
+    /* Sleek dark background */
+    border: 1px solid #30363d;
+    overflow-x: auto;
+    /* Enables horizontal scrolling for long lines */
+}
+
+/* The Copy Button - Made more compact to match */
+.copy-code-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.7rem;
+    color: #8b949e;
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    /* Hidden by default */
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    z-index: 10;
+}
+
+/* Reveal the button only when hovering over the code block */
+pre:hover .copy-code-button {
+    opacity: 1;
+}
+
+.copy-code-button:hover {
+    background-color: #21262d;
+    color: #c9d1d9;
+}
+
+/* Style change when clicked */
+.copy-code-button.copied {
+    color: #3fb950;
+    border-color: #3fb950;
+    opacity: 1;
+}
+
+/* The actual text inside the code block */
+pre code {
+    font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    font-size: 0.85rem !important;
+    line-height: 1.2 !important;
+    /* Reduced from 1.4 to 1.2 */
+    letter-spacing: 0px;
+}
+
+/* Adjusting Shiki's internal line spacing */
+pre .line {
+    padding-top: 0px !important;
+    /* Removed extra top padding */
+    padding-bottom: 0px !important;
+    /* Removed extra bottom padding */
+    min-height: 1.2rem;
+    /* Ensures lines don't collapse completely */
+}
+
+/* Target links specifically inside your post body */
+.post-body a {
+    color: #38bdf8;
+    /* A vibrant sky blue that stands out on dark themes */
+    text-decoration: underline;
+    text-decoration-color: rgba(56, 189, 248, 0.4);
+    /* Faded underline */
+    text-underline-offset: 4px;
+    /* Gives the text some breathing room */
+    transition: all 0.2s ease;
+}
+
+.post-body a:hover {
+    color: #7dd3fc;
+    /* Lighter shade on hover */
+    text-decoration-color: #7dd3fc;
+    /* Solid underline on hover */
 }
