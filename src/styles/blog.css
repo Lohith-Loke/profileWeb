@@ -382,9 +382,8 @@ pre:hover .copy-code-button {
 
 /* The actual text inside the code block */
 pre code {
-    font-family: 'Fira Code', 'Courier New', Courier, monospace;
     font-size: 0.85rem !important;
-    line-height: 1.2 !important;
+    line-height: 0.2rem !important;
     /* Reduced from 1.4 to 1.2 */
     letter-spacing: 0px;
 }

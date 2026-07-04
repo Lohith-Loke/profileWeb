@@ -1,0 +1,96 @@
+---
+// src/components/NetworkGraph.astro
+interface NodeData {
+  id: string;
+  label: string;
+  color?: string;
+}
+
+interface EdgeData {
+  source: string;
+  target: string;
+  weight?: number;
+}
+
+interface Props {
+  nodes: NodeData[];
+  edges: EdgeData[];
+}
+
+const { nodes, edges } = Astro.props;
+
+// Format the elements array for Cytoscape
+const elements = [
+  ...nodes.map((n) => ({
+    data: { id: n.id, label: n.label, color: n.color || "#3b82f6" },
+  })),
+  ...edges.map((e) => ({
+    data: { source: e.source, target: e.target, weight: e.weight },
+  })),
+];
+---
+
+<div
+  id="cy"
+  data-elements={JSON.stringify(elements)}
+  style="width: 100%; height: 400px; background-color: #1e1e24; border-radius: 8px; margin: 20px 0;">
+</div>
+
+<script>
+  import cytoscape from "cytoscape";
+  import dagre from "cytoscape-dagre";
+
+  cytoscape.use(dagre);
+
+  const container = document.getElementById("cy");
+
+  if (container) {
+    // Read the processed elements data out of the HTML dataset attribute
+    const elements = JSON.parse(container.dataset.elements || "[]");
+
+    cytoscape({
+      container: container,
+      elements: elements,
+      style: [
+        {
+          selector: "node",
+          style: {
+            "background-color": "data(color)",
+            label: "data(label)",
+            width: "48px",
+            height: "48px",
+            color: "#ffffff",
+            "font-weight": "bold",
+            "font-size": "12px",
+            "text-valign": "center",
+            "text-halign": "center",
+            "border-width": "3px",
+            "border-color": "#ffffff",
+          },
+        },
+        {
+          selector: "edge",
+          style: {
+            width: 2,
+            "line-color": "#6366f1",
+            "target-arrow-color": "#6366f1",
+            "target-arrow-shape": "triangle",
+            "curve-style": "bezier",
+            label: "data(weight)",
+            color: "#e0e7ff",
+            "font-size": "10px",
+            "text-background-color": "#2d2d3d",
+            "text-background-opacity": 1,
+            "text-background-padding": "4px",
+          },
+        },
+      ],
+      layout: {
+        name: "dagre",
+        rankDir: "TB",
+        nodeSep: 50,
+        rankSep: 70,
+      } as cytoscape.LayoutOptions,
+    });
+  }
+</script>

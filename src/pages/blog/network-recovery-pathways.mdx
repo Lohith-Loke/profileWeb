@@ -1,0 +1,143 @@
+---
+layout: "../../layouts/BlogPost.astro"
+title: "Leetcode | 3620. Network Recovery Pathways"
+date: "2026-07-04"
+description: "Leetcode | 3620. Network Recovery Pathways | Medium "
+tags: ["DSA", "Leetcode", "Medium"]
+---
+
+import NetworkGraph from "../../layouts/NetworkGraph.astro";
+export const postNodes = [
+  { id: "n0", label: "0", color: "#8b5cf6" },
+  { id: "n1", label: "1", color: "#ef4444" },
+  { id: "n2", label: "2", color: "#f59e0b" },
+  { id: "n3", label: "3", color: "#10b981" },
+];
+export const postEdges = [
+  { source: "n0", target: "n2", weight: 3 },
+  { source: "n0", target: "n1", weight: 5 },
+  { source: "n2", target: "n3", weight: 4 },
+  { source: "n1", target: "n3", weight: 10 },
+];
+
+You are given a directed acyclic graph of `n` nodes numbered from 0 to `n − 1`. This is represented by a 2D array `edges` of length `m`, where `edges[i] = [uᵢ, vᵢ, costᵢ]` indicates a one‑way communication from node ui to node vi with a recovery cost of costi.
+
+Some nodes may be offline. You are given a boolean array `online` where `online[i] = true` means node `i` is online. Nodes 0 and `n − 1` are always online.
+
+A path from 0 to `n − 1` is valid if:
+
+- All intermediate nodes on the path are online.
+- The total recovery cost of all edges on the path does not exceed k.
+
+For each valid path, define its score as the minimum edge‑cost along that path.
+
+Return the **maximum** path score (i.e., the largest **minimum**-edge cost) among all valid paths. If no valid path exists, return -1.
+
+Input: edges = [[0,1,5],[1,3,10],[0,2,3],[2,3,4]], online = [true,true,true,true], k = 10
+
+Output: 3
+
+## Explanation:
+
+<NetworkGraph nodes={postNodes} edges={postEdges} />
+
+The graph has two possible routes from node 0 to node 3:
+
+- Path 0 → 1 → 3
+
+  - Total cost = 5 + 10 = 15, which exceeds k (15 > 10), so this path is invalid.
+
+- Path 0 → 2 → 3
+
+  - Total cost = 3 + 4 = 7 `<`= k, so this path is valid.
+
+  - The minimum edge‐cost along this path is min(3, 4) = 3.
+
+- There are no other valid paths. Hence, the maximum among all valid path‐scores is 3.
+
+## Approach
+
+few things to notice in problem
+
+- maximise the minimum (hint: binary search)
+- The total cost on the path does not exceed k. ( valid paths Dijkstra algoritem)
+
+lets tackale the problem
+
+step 1 - find range of binary serach its min and maximum of cost(weights ) in graph
+
+```python
+    mincost=min(mincost,cost)
+    maxcost=max(maxcost,cost)
+```
+
+setp 2: complete binary function with default template code
+
+```python
+  while l<=r:
+    mid=(l+r)//2
+    if check(mid):
+        ans=mid
+        l=mid+1
+    else:
+        r=mid-1
+  return ans
+```
+
+step 3: lets write check function, it takes in mid and tells us if there is such mid where path is valid (no node weight is less than mid and total weight is less than k). we compute path and check for node weight less than mid is not considered for pathing, node total path sum is less than 'k'
+
+here is final coode
+
+```python
+from collections import defaultdict
+from heapq import heappush, heappop
+
+class Solution:
+    def findMaxPathScore(self, edges: List[List[int]], online: List[bool], k: int) -> int:
+        # dont add node thats ofline to graph
+        graph=defaultdict(list)
+        mincost=float("inf")
+        maxcost= -float("inf")
+        n=len(online)
+
+        def checkPath(mid):
+            # no cost can be higer that mid
+            que=[(0,0)]
+            cost=[float("inf")]*n
+            cost[0]=0
+            while que:
+                pathcost,node=heappop(que)
+                if pathcost>cost[node]:
+                    continue
+                if pathcost>k:
+                    return False
+                if node==n-1:
+                    return True # valid path with cost == mid found
+                for neb,ncost in graph[node]:
+                    if mid>ncost: # skip all nodes with cost<mid
+                        continue
+                    tcost=ncost+pathcost
+                    if tcost>=cost[neb]: # invalid path
+                        continue
+                    cost[neb]=tcost
+                    heappush(que,(tcost,neb))
+            return False
+        for u,v,c in edges:
+            if not online[u] or not online[v]:
+                continue
+            graph[u].append((v,c))
+            mincost=min(mincost,c)
+            maxcost=max(maxcost,c)
+        l=mincost
+        r=maxcost
+        ans=-1
+        print(l,r)
+        while l<=r:
+            mid=(l+r)//2
+            if checkPath(mid):
+                ans=mid
+                l=mid+1
+            else:
+                r=mid-1
+        return ans
+```
