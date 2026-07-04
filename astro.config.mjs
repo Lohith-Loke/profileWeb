@@ -6,11 +6,4 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   site: "https://lohith.io",
   base: "",
-  output: 'server',
-  adapter: cloudflare(),
-  image: {
-    service: {
-      entrypoint: 'astro/assets/services/noop' 
-    }
-  }
 });
