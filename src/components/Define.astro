@@ -1,0 +1,97 @@
+---
+// src/components/Define.astro
+//
+// Usage in markdown/MDX:
+// <Define string="substring" defniation="A substring is a contiguous non-empty sequence of characters within a string.">substring</Define>
+//
+// `string` is kept for backwards compatibility with existing content but isn't
+// required — if omitted, the slotted content is used as the display term.
+interface Props {
+  string?: string;
+  defniation: string; // kept as-is to match existing markdown usage
+}
+
+const { string, defniation } = Astro.props as Props;
+---
+
+<span class="define" tabindex="0"
+  ><slot>{string}</slot><span class="define__mark" aria-hidden="true">?</span
+  ><span class="define__tooltip" role="tooltip">{defniation}</span></span
+>
+
+<style>
+  .define {
+    position: relative;
+    display: inline;
+    cursor: help;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--define-underline, #8a8a8a);
+  }
+
+  .define.is-open {
+    text-decoration-color: var(--define-accent, #d97757);
+  }
+
+  .define__mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.95em;
+    height: 0.95em;
+    margin-left: 2px;
+    border-radius: 999px;
+    font-size: 0.65em;
+    line-height: 1;
+    vertical-align: super;
+    background: var(--define-mark-bg, #e4e4e4);
+    color: var(--define-mark-fg, #555);
+  }
+
+  .define__tooltip {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index: 20;
+    margin-top: 6px;
+    width: max-content;
+    max-width: min(320px, 80vw);
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--define-tooltip-bg, #1f1f1f);
+    color: var(--define-tooltip-fg, #f5f5f5);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    white-space: normal;
+  }
+
+  @media (hover: hover) {
+    .define:hover .define__tooltip,
+    .define:focus-visible .define__tooltip {
+      display: block;
+    }
+  }
+
+  .define.is-open .define__tooltip {
+    display: block;
+  }
+</style>
+
+<script>
+  // Tap-to-toggle support for touch devices (no-hover), click-outside to close.
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    const term = target.closest(".define") as HTMLElement | null;
+
+    document.querySelectorAll(".define.is-open").forEach((el) => {
+      if (el !== term) el.classList.remove("is-open");
+    });
+
+    if (term && matchMedia("(hover: none)").matches) {
+      term.classList.toggle("is-open");
+    }
+  });
+</script>
