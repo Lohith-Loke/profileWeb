@@ -30,6 +30,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.1",
     "@astrojs/mdx": "^7.0.2",
+    "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.0.5",
     "cytoscape": "^3.34.0",
     "cytoscape-dagre": "^4.0.0"

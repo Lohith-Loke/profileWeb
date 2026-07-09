@@ -1,0 +1,173 @@
+---
+layout: "../../layouts/BlogPost.astro"
+title: "Leetcode | 3756. Concatenate Non-Zero Digits and Multiply by Sum II"
+date: "2026-07-09"
+description: "Leetcode | 3756. Concatenate Non-Zero Digits and Multiply by Sum II | Medium "
+tags: ["DSA", "Leetcode", "Medium"]
+---
+import Define from "../../components/Define.astro";
+
+You are given a string `s` of length `m` consisting of digits, and a 2D integer array `queries`, where `queries[i] = [li, ri]`.
+
+For each `queries[i]`, extract the <Define string="substring" defniation="A substring is a contiguous non-empty sequence of characters within a string.">substring</Define> `s[li..ri]`. Then perform the following:
+
+- Form a new integer `x` by concatenating all the non-zero digits from the substring, in their original order. If there are no non-zero digits, `x = 0`.
+- Let `sum` be the sum of the digits of `x`. The answer is `x * sum`.
+
+Return an array `answer` where `answer[i]` is the answer to the `i`th query.
+
+Since the answers may be very large, return them modulo `10^9 + 7`.
+
+### Example 1
+
+**Input:** `s = "10203004"`, `queries = [[0,7],[1,3],[4,6]]`
+
+**Output:** `[12340, 4, 9]`
+
+**Explanation:**
+
+- `s[0..7] = "10203004"`
+  - `x = 1234`
+  - `sum = 1 + 2 + 3 + 4 = 10`
+  - Answer: `1234 * 10 = 12340`
+- `s[1..3] = "020"`
+  - `x = 2`
+  - `sum = 2`
+  - Answer: `2 * 2 = 4`
+- `s[4..6] = "300"`
+  - `x = 3`
+  - `sum = 3`
+  - Answer: `3 * 3 = 9`
+
+## Solution
+
+Before reading the solution, give it a try [on LeetCode](https://leetcode.com/problems/concatenate-non-zero-digits-and-multiply-by-sum-ii/).
+
+This is an **online query** problem ([read more about online vs. offline queries](https://www.geeksforgeeks.org/dsa/what-are-online-and-offline-query-based-questions-in-competitive-programming/)) — each query has to be answered independently and as fast as possible, so the goal is to push all the expensive work into a one-time preprocessing step.
+
+The core idea: identify the repeated work across queries and cache it so each query resolves in `O(1)`.
+
+Two things repeat across queries:
+
+1. **Summing a range of digits** — solved with a **prefix sum**, giving `O(1)` range-sum lookups.
+2. **Concatenating a range of digits into a number** — solved the same way, using a "prefix number" built with powers of 10.
+
+### Prefix sum
+
+> Precompute the running sum of the array so that the sum of any sub-array can be recovered with simple arithmetic in `O(1)`.
+
+```python
+# index=[0,1,2,3,4,5]
+array = [1,2,3,4,5,6]
+prefix_sum = [0]
+for i in array:
+    prefix_sum.append(prefix_sum[-1] + i)
+
+# query sub-array sum for [l, r]
+l, r = 2, 4
+print(prefix_sum[r + 1] - prefix_sum[l])  # O(1)
+# output = 12  ->  3 + 4 + 5
+```
+
+### Prefix number
+
+> Precompute the "number" formed by concatenating array elements up to each index, so the number formed by any sub-array can be recovered in `O(1)`.
+
+To strip off a prefix correctly, we need powers of 10 to shift the removed part into the right place:
+
+```python
+# index=[0,1,2,3,4,5]
+array = [1,2,3,4,5,6]
+prefix_num = [0]
+pow_10 = [1]
+for i in array:
+    prefix_num.append(prefix_num[-1] * 10 + i)
+    pow_10.append(pow_10[-1] * 10)
+
+l, r = 2, 4
+print(prefix_num[r + 1] - prefix_num[l] * pow_10[r - l + 1])
+# 12345 - 12 * 1000 = 12345 - 12000 = 345
+```
+
+### Putting it together
+
+The catch is that zeros in the substring must be skipped entirely — they don't appear in `x`, but they _do_ still occupy positions in `s`. So before we can apply the two ideas above, we need to map every index in `s` to the array of **non-zero digits only**.
+
+Steps:
+
+1. **Find the nearest non-zero digit** for every index — scanning left → right gives the previous non-zero index (`prv_num`), and scanning right → left gives the next non-zero index (`nxt_num`).
+2. **Build a zero-free array** (`digits`) containing only the non-zero digits of `s`, along with a `rank` array mapping each original index to its position in `digits`.
+3. **Build prefix sum, prefix number, and powers of 10** over this zero-free array.
+4. For each query `[l, r]`:
+   - Snap `l` forward to the next non-zero index, and `r` backward to the previous non-zero index.
+   - If the snapped start is now past the snapped end, the range contains no non-zero digits, so the answer is `0`.
+   - Otherwise, translate the snapped indices into positions in the zero-free array via `rank`.
+   - Use the prefix sum and prefix number arrays to get `sum` and `x` in `O(1)`.
+   - Return `(x * sum) % MOD`.
+
+## Code
+
+```python
+class Solution:
+    def sumAndMultiply(self, s: str, queries: List[List[int]]) -> List[int]:
+        MOD = 10**9 + 7
+        n = len(s)
+
+        # nearest non-zero index to the left / right of each position
+        prv_num = [0] * n
+        nxt_num = [n] * n
+        prv = -1
+        for i in range(n):
+            if s[i] != '0':
+                prv = i
+            prv_num[i] = prv
+        nxt = n
+        for i in reversed(range(n)):
+            if s[i] != '0':
+                nxt = i
+            nxt_num[i] = nxt
+
+        # zero-free digit array + rank mapping
+        digits = []
+        rank = [-1] * n
+        c = 0
+        for idx, ch in enumerate(s):
+            if ch != '0':
+                digits.append(int(ch))
+                rank[idx] = c
+                c += 1
+
+        m = len(digits)
+        prefix_sum = [0] * (m + 1)
+        prefix_num = [0] * (m + 1)
+        pow_10 = [1] * (m + 1)
+        for i in range(m):
+            prefix_sum[i + 1] = prefix_sum[i] + digits[i]
+            prefix_num[i + 1] = (prefix_num[i] * 10 + digits[i]) % MOD
+            pow_10[i + 1] = pow_10[i] * 10
+
+        ans = []
+        for l, r in queries:
+            start = nxt_num[l]
+            end = prv_num[r]
+
+            if start > end:
+                ans.append(0)
+                continue
+
+            L = rank[start]
+            R = rank[end]
+            length = R - L + 1
+
+            sm = prefix_sum[R + 1] - prefix_sum[L]
+            num = (prefix_num[R + 1] - prefix_num[L] * pow_10[length]) % MOD
+            ans.append((num * sm) % MOD)
+
+        return ans
+```
+
+### Complexity
+
+- **Preprocessing:** `O(n)` to build `prv_num`, `nxt_num`, `rank`, `prefix_sum`, `prefix_num`, and `pow_10`.
+- **Per query:** `O(1)`.
+- **Overall:** `O(n + q)`, where `q` is the number of queries — a big improvement over recomputing each query from scratch, which would cost `O(n)` per query in the worst case.

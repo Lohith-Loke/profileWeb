@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-
+import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 
 export default defineConfig({
@@ -16,5 +16,5 @@ export default defineConfig({
     }
   },
 
-  integrations: [mdx()]
+  integrations: [mdx(),sitemap()]
 });
