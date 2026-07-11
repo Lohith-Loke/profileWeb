@@ -1,0 +1,142 @@
+---
+layout: "../../layouts/BlogPost.astro"
+title: "Leetcode | 3532. Path Existence Queries in a Graph I"
+date: "2026-07-11"
+description: "Leetcode | 3532. Path Existence Queries in a Graph I | Medium"
+tags: ["DSA", "Leetcode","Graph Theory","union find"]
+---
+import NetworkGraph from "../../components/NetworkGraph.astro";
+export const postNodes = [
+{ id: "n1", label: "1", color: "#ef4444" },
+{ id: "n2", label: "2", color: "#f59e0b" },
+{ id: "n3", label: "3", color: "#10b981" },
+{ id: "n0", label: "0", color: "#8b5cf6" },
+];
+export const postEdges = [
+{ source: "n2", target: "n3", weight: 0 },
+{ source: "n2", target: "n1", weight: 0 },
+];
+
+You are given an integer `n` representing the number of nodes in a graph, labeled from `0` to `n - 1`.
+
+You are also given an integer array `nums` of length `n`, sorted in non-decreasing order, and an integer `maxDiff`.
+
+An undirected edge exists between nodes `i` and `j` if the absolute difference between `nums[i]` and `nums[j]` is at most `maxDiff` (i.e., `|nums[i] - nums[j]| <= maxDiff`).
+
+You are also given a 2D integer array `queries`. For each `queries[i] = [ui, vi]`, determine whether there exists a path between nodes `ui` and `vi`.
+
+Return a boolean array `answer`, where `answer[i]` is `true` if there exists a path between `ui` and `vi` in the `ith` query and `false` otherwise.
+
+Example 1:
+
+Input: n = 4, nums = [2,5,6,8], maxDiff = 2, queries = [[0,1],[0,2],[1,3],[2,3]]
+
+Output: [false,false,true,true]
+
+Explanation:
+
+The resulting graph is:
+<NetworkGraph nodes={postNodes} edges={postEdges} isDirected={false} isWeighted={false}/>
+
+
+- Query [0,1]: There is no edge between Node 0 and Node 1 because `|nums[0] - nums[1]| = |2 - 5| = 3`, which is greater than `maxDiff`.
+- Query [0,2]: There is no edge between Node 0 and Node 2 because `|nums[0] - nums[2]| = |2 - 6| = 4`, which is greater than `maxDiff`.
+- Query [1,3]: There is a path between Node 1 and Node 3 through Node 2 since `|nums[1] - nums[2]| = |5 - 6| = 1` and `|nums[2] - nums[3]| = |6 - 8| = 2`, both of which are within `maxDiff`.
+- Query [2,3]: There is an edge between Node 2 and Node 3 because `|nums[2] - nums[3]| = |6 - 8| = 2`, which is equal to `maxDiff`.
+
+
+Thus, the final answer after processing all the queries is `[false, false, true, true]`.
+
+## Solution
+
+Before reading the solution, give it a try [on LeetCode](https://leetcode.com/problems/path-existence-queries-in-a-graph-i/).
+
+This is an **online query** problem ([read more about online vs. offline queries](https://www.geeksforgeeks.org/dsa/what-are-online-and-offline-query-based-questions-in-competitive-programming/)) — each query has to be answered independently and as fast as possible, so the goal is to push all the expensive work into a one-time preprocessing step.
+
+> Idea: Graph theory and connected components, built with Union-Find.
+
+Two nodes have a path between them if and only if they belong to the same connected component. So instead of running a search for every query, we can preprocess the graph once, group nodes into connected components, and then answer each query in near-constant time by checking whether both nodes belong to the same group.
+
+### The key insight: skip the O(n²) edge check
+
+A naive approach would compare every pair of nodes `(i, j)` and add an edge whenever `|nums[i] - nums[j]| <= maxDiff` — that's `O(n²)` pairs, which is too slow for large `n`.
+
+But `nums` is **sorted in non-decreasing order**, and that changes everything. If `nums[i]` and `nums[k]` are within `maxDiff` of each other, then every value between them is too, so `i`, `i+1`, ..., `k` all end up in the same connected component anyway. This means we never need to check non-adjacent pairs directly — it's enough to check **consecutive elements**:
+
+```
+if nums[i + 1] - nums[i] <= maxDiff: union(i, i + 1)
+```
+
+If two adjacent elements are within `maxDiff`, they belong to the same component. If a later pair like `nums[i]` and `nums[i+2]` is also within `maxDiff`, they'll still end up connected transitively through the union operations, since `nums[i+1]` sits between them. This drops the preprocessing step from `O(n²)` down to a single `O(n)` pass.
+
+### Union-Find
+
+To group nodes into connected components, we use the **Union-Find** (a.k.a. Disjoint Set Union) data structure. The idea is that connected components are disjoint sets, and each set can be represented by a single representative node — its "root."
+
+Union-Find relies on two operations:
+
+- **`find(node)`** — walks up the parent chain to return the root of the set containing `node`, compressing the path along the way so future lookups are faster.
+- **`union(node1, node2)`** — merges the sets containing `node1` and `node2` by attaching one root under the other.
+
+We back this with two arrays of size `n`:
+
+- **`parent`** — `parent[i]` is the parent of node `i`. Initially, every node is its own parent (its own root).
+- **`rank`** — a rough estimate of each tree's height, used to keep the trees shallow by always attaching the smaller tree under the root of the larger one ("union by rank").
+
+```python
+def find(node):
+    if parent[node] != node:
+        parent[node] = find(parent[node])  # path compression
+    return parent[node]
+
+def union(node1, node2):
+    root1 = find(node1)
+    root2 = find(node2)
+    if root1 != root2:
+        if rank[root1] > rank[root2]:
+            parent[root2] = root1
+        elif rank[root1] < rank[root2]:
+            parent[root1] = root2
+        else:
+            parent[root2] = root1
+            rank[root1] += 1
+```
+
+With both operations in place, we build the components with one linear pass over the sorted array, unioning each pair of adjacent nodes that fall within `maxDiff`. Every query then becomes a simple check: do the two nodes share the same root?
+
+```python
+class Solution:
+    def pathExistenceQueries(self, n: int, nums: List[int], maxDiff: int, queries: List[List[int]]) -> List[bool]:
+        def find(node):
+            if parent[node] != node:
+                parent[node] = find(parent[node])  # path compression
+            return parent[node]
+
+        def union(node1, node2):
+            root1 = find(node1)
+            root2 = find(node2)
+            if root1 != root2:
+                if rank[root1] > rank[root2]:
+                    parent[root2] = root1
+                elif rank[root1] < rank[root2]:
+                    parent[root1] = root2
+                else:
+                    parent[root2] = root1
+                    rank[root1] += 1
+
+        parent = [i for i in range(n)]
+        rank = [0] * n
+
+        # Build components with a single pass — only adjacent
+        # elements in the sorted array need to be checked.
+        for i in range(n - 1):
+            if nums[i + 1] - nums[i] <= maxDiff:
+                union(i, i + 1)
+
+        return [find(u) == find(v) for u, v in queries]
+```
+
+### Complexity
+
+- **Time:** `O(n + q · α(n))`, where `n` is the number of nodes and `q` is the number of queries. `α(n)` is the inverse Ackermann function, which grows so slowly that it's effectively constant for any realistic input size.
+- **Space:** `O(n)` for the `parent` and `rank` arrays.

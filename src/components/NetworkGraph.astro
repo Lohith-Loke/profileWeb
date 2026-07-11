@@ -15,9 +15,12 @@ interface EdgeData {
 interface Props {
   nodes: NodeData[];
   edges: EdgeData[];
+  isDirected?: boolean;  // Added configuration flag
+  isWeighted?: boolean;  // Added configuration flag
 }
 
-const { nodes, edges } = Astro.props;
+// Default to true to maintain backward compatibility
+const { nodes, edges, isDirected = true, isWeighted = true } = Astro.props;
 
 // Format the elements array for Cytoscape
 const elements = [
@@ -25,7 +28,12 @@ const elements = [
     data: { id: n.id, label: n.label, color: n.color || "#3b82f6" },
   })),
   ...edges.map((e) => ({
-    data: { source: e.source, target: e.target, weight: e.weight },
+    data: { 
+      source: e.source, 
+      target: e.target, 
+      // If unweighted, we pass undefined so Cytoscape won't render a blank text bubble
+      weight: isWeighted ? e.weight : undefined 
+    },
   })),
 ];
 ---
@@ -33,6 +41,8 @@ const elements = [
 <div
   id="cy"
   data-elements={JSON.stringify(elements)}
+  data-directed={String(isDirected)}
+  data-weighted={String(isWeighted)}
   style="width: 100%; height: 400px; background-color: #1e1e24; border-radius: 8px; margin: 20px 0;">
 </div>
 
@@ -45,8 +55,10 @@ const elements = [
   const container = document.getElementById("cy");
 
   if (container) {
-    // Read the processed elements data out of the HTML dataset attribute
     const elements = JSON.parse(container.dataset.elements || "[]");
+    // Read the true/false flags from the HTML data attributes
+    const isDirected = container.dataset.directed === "true";
+    const isWeighted = container.dataset.weighted === "true";
 
     cytoscape({
       container: container,
@@ -74,13 +86,15 @@ const elements = [
             width: 2,
             "line-color": "#6366f1",
             "target-arrow-color": "#6366f1",
-            "target-arrow-shape": "triangle",
+            // Dynamically remove the arrow shape if undirected
+            "target-arrow-shape": isDirected ? "triangle" : "none",
             "curve-style": "bezier",
-            label: "data(weight)",
+            // Dynamically remove the label text and its background if unweighted
+            label: isWeighted ? "data(weight)" : "",
             color: "#e0e7ff",
             "font-size": "10px",
             "text-background-color": "#2d2d3d",
-            "text-background-opacity": 1,
+            "text-background-opacity": isWeighted ? 1 : 0,
             "text-background-padding": "4px",
           },
         },

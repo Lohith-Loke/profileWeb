@@ -398,6 +398,23 @@ pre .line {
     /* Ensures lines don't collapse completely */
 }
 
+pre {
+    line-height: 1.4;
+    /* tune this — 1.2–1.5 is typical for code */
+}
+
+pre code {
+    display: block;
+    line-height: 1.4;
+    /* make sure it's not inheriting something larger */
+}
+
+pre .line {
+    display: inline-block;
+    /* not strictly required, but makes padding/margin actually apply if you need it later */
+    line-height: 1;
+}
+
 /* Target links specifically inside your post body */
 .post-body a {
     color: #38bdf8;
