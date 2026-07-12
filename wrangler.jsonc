@@ -4,6 +4,13 @@
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "astro-scholar",
 	"main": "@astrojs/cloudflare/entrypoints/server",
+	"workers_dev": false,
+	"routes": [
+		{
+			"pattern": "lohith.io",
+			"custom_domain": true
+		}
+	],
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
