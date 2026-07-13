@@ -11,5 +11,9 @@
 	"observability": {
 		"enabled": true
 	},
-	"preview_urls" : false
+	"preview_urls" : false,
+	"routes": [
+		{ "pattern": "lohith.io/*", "custom_domain": true },
+		{ "pattern": "www.lohith.io/*", "custom_domain": true }
+	]
 }
