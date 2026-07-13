@@ -1,7 +1,7 @@
 {
     "$schema": "./node_modules/wrangler/config-schema.json",
     "compatibility_date": "2026-07-08",
-    "name": "profileweb",
+    "name": "profile",
     "assets": {
         "directory": "./dist",
         "binding": "ASSETS"
@@ -10,7 +10,7 @@
         "enabled": true
     },
     "routes": [
-        { "pattern": "lohith.io/*", "custom_domain": true },
-        { "pattern": "www.lohith.io/*", "custom_domain": true }
+        { "pattern": "lohith.io/", "custom_domain": true },
+        { "pattern": "www.lohith.io/", "custom_domain": true }
     ]
 }
