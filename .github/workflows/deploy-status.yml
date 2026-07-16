@@ -1,0 +1,44 @@
+name: Cloudflare Deploy Status
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  monitor-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Wait for Cloudflare Pages to finish building and deploying
+      - name: Wait for Cloudflare Pages
+        id: cf_status
+        uses: lionel-gilles/wait-for-commit-status@v2.0.0
+        with:
+          # The context name Cloudflare uses for its status checks
+          context: "Cloudflare Pages"
+          # How long to wait before timing out (e.g., 10 minutes)
+          timeout: 600
+          # How often to poll the status (in seconds)
+          poll-interval: 10
+        env:
+          # Required to read commit status from the GitHub API
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Print the final status and take action
+      - name: Report Status
+        run: |
+          echo "Cloudflare build finished!"
+          echo "Final Status: ${{ steps.cf_status.outputs.status }}"
+
+          # You can also access the target URL (the deployment preview/production URL)
+          echo "Deployment URL: ${{ steps.cf_status.outputs.target_url }}"
+
+      # 3. Example: Run downstream tasks only if the build succeeded
+      - name: Run E2E Tests
+        if: ${{ steps.cf_status.outputs.status == 'success' }}
+        run: |
+          echo "Running tests against: ${{ steps.cf_status.outputs.target_url }}"
+          # npm run test -- --url=${{ steps.cf_status.outputs.target_url }}
