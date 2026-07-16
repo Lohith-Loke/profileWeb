@@ -1,6 +1,7 @@
 ---
 import Layout from "./Layout.astro";
 import "../styles/blog.css";
+import "katex/dist/katex.min.css";
 const { frontmatter } = Astro.props;
 
 const dateStr = new Date(frontmatter.date).toLocaleDateString("en-GB", {
