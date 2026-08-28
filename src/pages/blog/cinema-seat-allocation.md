@@ -3,7 +3,7 @@ layout: "../../layouts/BlogPost.astro"
 title: "Leetcode | 1386. Cinema Seat Allocation"
 date: "2026-08-21"
 description: "Leetcode | 1386. Cinema Seat Allocation | Medium"
-tags: ["DSA", "Leetcode"]
+tags: ["DSA", "Leetcode","Bit manipulation"]
 ---
 
 A cinema has `n` rows of seats, numbered from 1 to `n`. Each row has 10 seats, numbered from 1 to 10.
